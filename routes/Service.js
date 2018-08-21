@@ -11,7 +11,7 @@ class Service {
      * middleware: An array of middleware to apply before handling this Service call
      * handler: The function that handles this Service call.
      */
-    constructor(method, route, middleware, handler) {
+    constructor(method, route, handler, middleware=[]) {
         this.method = method.toLowerCase();
         this.route = route;
         this.middleware = middleware;

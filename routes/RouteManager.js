@@ -1,6 +1,8 @@
 /*
  * This route management pattern is loosely based off of this HN article:
  * https://hackernoon.com/object-oriented-routing-in-nodejs-and-express-71cb1baed9f0
+ * Instead of using a poorly constructed dictionary, I created the Service class.
+ * I also added a way to add pre-handler and post-handler middleware
  */
 
 class RouteManager {
@@ -26,7 +28,8 @@ class RouteManager {
         this.services.forEach(service => {
             let path = this.baseRoute + service.route;
             console.log(`Registering ${service.method.toUpperCase()} ${path}`);
-            this.app[service.method](path, service.handler.bind(this))
+            let boundMiddleware = service.middleware.map(x => x.bind(this));
+            this.app[service.method](path, boundMiddleware, service.handler.bind(this))
         });
     }
 }
