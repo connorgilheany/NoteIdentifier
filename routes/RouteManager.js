@@ -5,22 +5,30 @@
 
 class RouteManager {
 
-    constructor(app, baseRoute, services) {
+    constructor(app, baseRoute) {
         if(!app) {
             throw new Error(`No app in RouteManager for ${baseRoute}`);
         }
         this.app = app;
         this.baseRoute = baseRoute;
-        this.registerServices(services);
+        this.registerServices(this.services);
     }
 
     /*
-     * parameter 'services' is an array of Service objects
+     * This method must be overridden in subclasses.
+     * Return an array of Service objects
      */
-    registerServices(services) {
-        services.forEach(service => {
+    get services() {
+        return {};
+    }
+
+    registerServices() {
+        this.services.forEach(service => {
             let path = this.baseRoute + service.route;
-            this.app[service.method](path, service.handler)
+            console.log(`Registering ${service.method.toUpperCase()} ${path}`);
+            this.app[service.method](path, service.handler.bind(this))
         });
     }
 }
+
+module.exports = RouteManager;
