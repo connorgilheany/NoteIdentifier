@@ -10,19 +10,34 @@ class NoteRequestHandler extends RouteManager {
     }
 
     checkAuth(req, res, next) {
-        if(req.locals.user) {
-            req.locals.shouldBeLogged = true;
+        console.log('Checking authentication...');
+        if(req.app.locals.user) {
+            req.app.locals.shouldBeLogged = true;
             console.log('This request was made by an authenticated user. The results will be logged.');
         }
+        next();
     }
 
     noteSequence(req, res, next) {
-        let numberOfNotes = req.params.size ? req.params.size : 1;
+        let numberOfNotes = req.query.size ? Number(req.query.size) : 1;
         let id = uuid();
-
+        let notes = Array(numberOfNotes).fill(this.generateNote(req));
+        let response = {
+            id: id,
+            notes: notes
+        };
+        res.status(200).json(response);
     }
 
-    generateNote() {
+    generateNote(req) {
+        let options = this.getNotesToChooseFrom(req);
+        return 1;
+    }
+
+    getNotesToChooseFrom(req) {
+        if(req.app.locals.user) {
+
+        }
 
     }
 
