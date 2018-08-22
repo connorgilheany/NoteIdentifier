@@ -1,0 +1,15 @@
+Authenticated users:
+	Each request includes the authorization header
+	Are able to track their history & progress (scoreboard?)
+
+Unauthenticated users:
+	No auth header, but the requests themselves are the exact same
+
+
+So,
+
+I need each request to go through middleware that logs actions for authenticated users, but not unauthenticated users
+
+
+Should there be one UUID per note, or one UUID per sequence?
+    -> We could store each request as a sequence, even if it's a single note (sequence of one)

@@ -11,8 +11,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser());
 
+app.use(authenticateUser);
+
 function registerRoutes() {
     registerRoute('TestRoute', '/hello');
+    registerRoute('NoteRequestHandler', '/note');
 }
 registerRoutes();
 
@@ -43,4 +46,10 @@ function registerRoute(managerPath, route) {
     new routeManager(app, route);
 }
 
+function authenticateUser(req, res, next) {
+    if(req.headers.authentication) {
+        req.locals.user = req.headers.authentication;
+    }
+    next();
+}
 

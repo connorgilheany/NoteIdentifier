@@ -27,7 +27,7 @@ class RouteManager {
     registerServices() {
         this.services.forEach(service => {
             let path = this.baseRoute + service.route;
-            console.log(`Registering ${service.method.toUpperCase()} ${path}`);
+            console.log(`Registering\t${service.method.toUpperCase()}\t${path}`);
             let boundMiddleware = service.middleware.map(x => x.bind(this));
             this.app[service.method](path, boundMiddleware, service.handler.bind(this))
         });
