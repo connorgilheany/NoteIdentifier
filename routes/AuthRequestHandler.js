@@ -1,15 +1,22 @@
 const RouteManager = require('./RouteManager');
 const Service = require('./Service');
 const uuid = require('uuid/v4');
-const hmacSHA256 = require('crypto-js/hmac-sha256');
-const secretFile = require('../secrets/hash');
+
+const AuthManager = require('../AuthManager');
 
 class AuthRequestHandler extends RouteManager {
     get services() {
         return [
             new Service('POST', '/login', this.login),
-            new Service('POST', '/register', this.register)
+            new Service('POST', '/register', this.register),
+            new Service('GET', '/test', this.test)
         ];
+    }
+
+    test(req, res, next) {
+        let userID = req.app.locals.user ? req.app.locals.user : uuid();
+        let JWT = this.createJWT(userID);
+        res.status(200).json(JWT);
     }
 
     login(req, res, next) {
@@ -27,35 +34,10 @@ class AuthRequestHandler extends RouteManager {
             register the user with a random id
          */
         let userID = req.app.locals.user ? req.app.locals.user : uuid();
-        let JWT = this.createJWT(userID);
-        
+        let JWT = AuthManager.createJWT(userID);
+
     }
 
-    createJWT(userID) {
-        let encodedHeader = this.encodeObject({
-            "typ": "JWT",
-            "alg": "HS256"
-        });
-        let encodedPayload = this.encodeObject({
-            "userID": userID
-        });
-        let dataToHash = `${encodedHeader}.${encodedPayload}`;
-        let hashedData = this.hash(dataToHash);
-        let signature = this.encodeString(hashedData);
-        return `${dataToHash}.${signature}`;
-    }
 
-    hash(data) {
-        let secret = secretFile.hashSecret;
-        return hmacSHA256(data, secret);
-    }
-
-    encodeObject(obj) {
-        return encodeString(JSON.stringify(obj));
-    }
-
-    encodeString(string) {
-        return btoa(string)
-    }
 }
 module.exports = AuthRequestHandler;

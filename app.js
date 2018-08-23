@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const util = require('util');
 const uuid = require('uuid/v4');
+const AuthManager = require('./AuthManager');
 const app = express();
 
 
@@ -15,12 +16,12 @@ app.use(cookieParser());
 
 app.use(displayCookie); //FIXME temporary
 
-app.use(getUserIDfromCookie); //Get user ID first so that we can use it in the registration
+app.use(AuthManager.getUserIDfromCookie); //Get user ID first so that we can use it in the registration
 //login request handle
 //auth request handle
 registerRoute('AuthRequestHandler', '/auth');
 //no cookie
-app.use(addCookieIfNeeded);
+app.use(AuthManager.addCookieIfNeeded);
 //everything else
 registerRoute('TestRoute', '/hello');
 registerRoute('NoteRequestHandler', '/note');
@@ -52,25 +53,6 @@ function registerRoute(managerPath, route) {
     let routeManager = require(`./routes/${managerPath}`);
     new routeManager(app, route);
 }
-
-function addCookieIfNeeded(req, res, next) {
-    if(!req.cookies.ni_auth) {
-        req.app.locals.user = uuid();
-        console.log(`Adding cookie for user: ${req.app.locals.user}`);
-        res.cookie('ni_auth', req.app.locals.user);
-        //TODO: make cookie a JWT instead of a string
-    }
-    next();
-}
-
-function getUserIDfromCookie(req, res, next) {
-    if(req.cookies.ni_auth) {
-        console.log(`Cookie present! User ID: ${req.cookies.ni_auth}`);
-        req.app.locals.user = req.cookies.ni_auth;
-    }
-    next();
-}
-
 
 function displayCookie(req, res, next) {
     console.log(`Cookies: ${util.inspect(req.cookies)}`);
