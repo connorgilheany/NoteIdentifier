@@ -1,9 +1,12 @@
 Authenticated users:
 	Each request includes the authorization header
 	Are able to track their history & progress (scoreboard?)
+	Have a permanent user ID
+
 
 Unauthenticated users:
 	No auth header, but the requests themselves are the exact same
+	Have a user ID that is stored in a cookie. If they decide to sign up, that ID becomes their permanent id
 
 
 So,
@@ -13,3 +16,27 @@ I need each request to go through middleware that logs actions for authenticated
 
 Should there be one UUID per note, or one UUID per sequence?
     -> We could store each request as a sequence, even if it's a single note (sequence of one)
+
+
+
+
+Cookies:
+    Each cookie is a JWT.
+    Vulnerabilities:
+        Session Hijacking    >NEED TLS EVERYWHERE<
+
+    Pseudocode (very general):
+
+    request received
+    if the request is a login request,
+        do the login
+        set a cookie with the auth JWT
+    else if the request is a registration request,
+        if the user has a cookie,
+            register the user with the id that was present in the cookie
+        else
+            register the user with a random id
+    else if request does not have cookie header,
+        add user id cookie
+    else
+        trust the cookie (JWT). get the user ID from it.

@@ -1,25 +1,30 @@
-let createError = require('http-errors');
-let express = require('express');
-let path = require('path');
-let cookieParser = require('cookie-parser');
-let logger = require('morgan');
-let util = require('util');
-let app = express();
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const util = require('util');
+const uuid = require('uuid/v4');
+const app = express();
 
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(authenticateUser);
 
-
+app.use(displayCookie); //FIXME temporary
+//login request handle
+//auth request handle
+registerRoute('AuthRequestHandler', '/auth');
+//no cookie
+app.use(addCookieIfNeeded);
+//everything else
+app.use(getUserIDfromCookie);
 registerRoute('TestRoute', '/hello');
 registerRoute('NoteRequestHandler', '/note');
-registerRoute('CookieRequestHandler', '/cookie');
 
 
-registerRoutes();
 
 
 // catch 404 and forward to error handler
@@ -49,11 +54,30 @@ function registerRoute(managerPath, route) {
     new routeManager(app, route);
 }
 
-function authenticateUser(req, res, next) {
-    console.log(`Cookies: ${util.inspect(req.cookies)}`);
-    if(req.headers.authorization) {
-        req.app.locals.user = req.headers.authorization;
+function addCookieIfNeeded(req, res, next) {
+    if(!req.cookies.ni_auth) {
+        req.app.locals.user = uuid();
+        console.log(`Adding cookie for user: ${req.app.locals.user}`);
+        res.cookie('ni_auth', req.app.locals.user);
+        //TODO: make cookie a JWT instead of a string
     }
+    next();
+}
+
+function getUserIDfromCookie(req, res, next) {
+    if(req.cookies.ni_auth) {
+        console.log(`Cookie present! User ID: ${req.cookies.ni_auth}`);
+        req.app.locals.user = req.cookies.ni_auth;
+    }
+    next();
+}
+
+
+function displayCookie(req, res, next) {
+    console.log(`Cookies: ${util.inspect(req.cookies)}`);
+    // if(req.headers.authorization) {
+    //     req.app.locals.user = req.headers.authorization;
+    // }
     next();
 }
 

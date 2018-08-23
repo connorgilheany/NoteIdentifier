@@ -11,15 +11,9 @@ class AuthRequestHandler extends RouteManager {
 
     newCookie(req, res, next) {
         let id = uuid();
-        res.cookie('id', )
+       // res.cookie('id', )
     }
 
-    getNotesToChooseFrom(req) {
-        if(req.app.locals.user) {
-
-        }
-
-    }
 
 }
 module.exports = AuthRequestHandler;
