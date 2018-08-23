@@ -1,5 +1,6 @@
 const hmacSHA256 = require('crypto-js/hmac-sha256');
 const secretFile = require('./secrets/hash');
+const uuid = require('uuid/v4');
 
 
 function addCookieIfNeeded(req, res, next) {
@@ -13,20 +14,18 @@ function addCookieIfNeeded(req, res, next) {
 
 function getUserIDfromCookie(req, res, next) {
     if(req.cookies.ni_auth) {
-        console.log(`Cookie present! JWT: ${req.cookies.ni_auth}`);
         let payload = decodeJWT(req.cookies.ni_auth);
-        console.log(`JWT decoded, userID: ${payload.userID}`);
         req.app.locals.user = payload.userID;
     }
     next();
 }
 
 function createJWT(userID) {
-    let encodedHeader = this.encodeObject({
+    let encodedHeader = encodeObject({
         "typ": "JWT",
         "alg": "HS256"
     });
-    let encodedPayload = this.encodeObject({
+    let encodedPayload = encodeObject({
         "userID": userID
     });
     let signature = generateSignature(encodedHeader, encodedPayload);
@@ -38,8 +37,7 @@ function decodeJWT(jwt) {
     if(!verifyIntegrity(encodedHeader, encodedPayload, signature)) {
         throw 'bad-jwt';
     }
-    // let header = decodeString(encodedHeader);
-    let payload = decodeString(encodedPayload);
+    let payload = JSON.parse(decodeString(encodedPayload));
     return payload;
 }
 
@@ -59,7 +57,7 @@ function hash(data) {
 }
 
 function encodeObject(obj) {
-    return this.encodeString(JSON.stringify(obj));
+    return encodeString(JSON.stringify(obj));
 }
 
 function encodeString(str) {

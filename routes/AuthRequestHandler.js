@@ -15,7 +15,7 @@ class AuthRequestHandler extends RouteManager {
 
     test(req, res, next) {
         let userID = req.app.locals.user ? req.app.locals.user : uuid();
-        let JWT = this.createJWT(userID);
+        let JWT = AuthManager.createJWT(userID);
         res.status(200).json(JWT);
     }
 

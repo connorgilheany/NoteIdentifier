@@ -4,7 +4,6 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const util = require('util');
-const uuid = require('uuid/v4');
 const AuthManager = require('./AuthManager');
 const app = express();
 
@@ -14,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(displayCookie); //FIXME temporary
+// app.use(displayCookie); //FIXME temporary
 
 app.use(AuthManager.getUserIDfromCookie); //Get user ID first so that we can use it in the registration
 //login request handle
@@ -53,9 +52,9 @@ function registerRoute(managerPath, route) {
     let routeManager = require(`./routes/${managerPath}`);
     new routeManager(app, route);
 }
-
-function displayCookie(req, res, next) {
-    console.log(`Cookies: ${util.inspect(req.cookies)}`);
-    next();
-}
+//
+// function displayCookie(req, res, next) {
+//     console.log(`Cookies: ${util.inspect(req.cookies)}`);
+//     next();
+// }
 
