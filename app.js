@@ -14,17 +14,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(displayCookie); //FIXME temporary
+
+app.use(getUserIDfromCookie); //Get user ID first so that we can use it in the registration
 //login request handle
 //auth request handle
 registerRoute('AuthRequestHandler', '/auth');
 //no cookie
 app.use(addCookieIfNeeded);
 //everything else
-app.use(getUserIDfromCookie);
 registerRoute('TestRoute', '/hello');
 registerRoute('NoteRequestHandler', '/note');
-
-
 
 
 // catch 404 and forward to error handler
@@ -75,9 +74,6 @@ function getUserIDfromCookie(req, res, next) {
 
 function displayCookie(req, res, next) {
     console.log(`Cookies: ${util.inspect(req.cookies)}`);
-    // if(req.headers.authorization) {
-    //     req.app.locals.user = req.headers.authorization;
-    // }
     next();
 }
 
