@@ -13,15 +13,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// app.use(displayCookie); //FIXME temporary
 
-app.use(AuthManager.getUserIDfromCookie); //Get user ID first so that we can use it in the registration
-//login request handle
-//auth request handle
-registerRoute('AuthRequestHandler', '/auth');
-//no cookie
 app.use(AuthManager.addCookieIfNeeded);
-//everything else
+app.use(AuthManager.getUserIDfromCookie);
+
+registerRoute('AuthRequestHandler', '/auth');
 registerRoute('TestRoute', '/hello');
 registerRoute('NoteRequestHandler', '/note');
 
@@ -52,9 +48,3 @@ function registerRoute(managerPath, route) {
     let routeManager = require(`./routes/${managerPath}`);
     new routeManager(app, route);
 }
-//
-// function displayCookie(req, res, next) {
-//     console.log(`Cookies: ${util.inspect(req.cookies)}`);
-//     next();
-// }
-

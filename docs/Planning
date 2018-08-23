@@ -28,16 +28,17 @@ Cookies:
     Pseudocode (very general):
 
     request received
-1.  if the request has a cookie,
+1.  if request does not have cookie header,
+        add user id cookie
+        save userID in the request
+    else if the request has a cookie,
         save the userID from the cookie in the request
+
     if the request is a login request,
         do the login
-        set a cookie with the auth JWT
+        set a new cookie with the auth JWT (their real ID)
     else if the request is a registration request,
-        if the request has the userID attached to it (from 1),
-            register the user with that id
-        else
-            register the user with a random id
-    else if request does not have cookie header,
-        add user id cookie
+        every request has an ID because of #1, so user that ID
+
+
     then handle all other requests, getting the user ID from the variable we saved in #1
