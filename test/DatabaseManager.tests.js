@@ -7,11 +7,13 @@ describe('Database', () => {
     let DatabaseManager = require('../DatabaseManager');
     describe('Get hash and salt for test user', () => {
         it('Should have a hash and salt in the response', done => {
-            DatabaseManager.getHashAndSaltForUsername('ConnorTEST').then(response => {
+            DatabaseManager.getUserInfoFromDatabase('ConnorTEST2').then(response => {
+                console.log(response);
                 response.should.have.property('passHash');
                 response.should.have.property('salt');
                 done();
             }).catch(err => {
+                console.log(err);
                 throw err;
             });
         });

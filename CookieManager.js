@@ -8,17 +8,31 @@ function addCookieIfNeeded(req, res, next) {
     if(!req.cookies[strings.cookie_name]) {
         req.app.locals.user = uuid();
         console.log(`Adding cookie for user: ${req.app.locals.user}`);
-        res.cookie(strings.cookie_name, createJWT(req.app.locals.user));
+        addCookieWithID(res, req.app.locals.user);
     }
     next();
 }
 
 function getUserIDfromCookie(req, res, next) {
-    if(req.cookies[strings.cookie_name]) {
-        let payload = decodeJWT(req.cookies[strings.cookie_name]);
-        req.app.locals.user = payload.userID;
+    try {
+        if(req.cookies[strings.cookie_name]) {
+            let payload = decodeJWT(req.cookies[strings.cookie_name]);
+            req.app.locals.user = payload.userID;
+        }
+    } catch(err) {
+        removeCookie(res);
+        throw 'bad-jwt'
+    } finally {
+        next();
     }
-    next();
+}
+
+function removeCookie(res) {
+    res.clearCookie(strings.cookie_name);
+}
+
+function addCookieWithID(res, userID) {
+    res.cookie(strings.cookie_name, createJWT(userID));
 }
 
 function createJWT(userID) {
@@ -49,6 +63,7 @@ function verifyIntegrity(encodedHeader, encodedPayload, signature) {
 function generateSignature(encodedHeader, encodedPayload) {
     let dataToHash = `${encodedHeader}.${encodedPayload}`;
     let hashedData = hash(dataToHash);
+    console.log(`signature hash: ${hashedData}`);
     return encodeObject(hashedData);
 }
 
@@ -69,8 +84,11 @@ function decodeString(str) {
     return Buffer.from(str, 'base64').toString();
 }
 
+
 module.exports = {
     addCookieIfNeeded,
     getUserIDfromCookie,
+    addCookieWithID,
+    removeCookie,
     createJWT
 };

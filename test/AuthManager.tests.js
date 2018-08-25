@@ -5,10 +5,10 @@ let should = chai.should();
 
 
 describe('JWT', () => {
-    let AuthManager = rewire('../AuthManager');
-    let jwt = AuthManager.__get__('createJWT')('randomuser');
+    let CookieManager = rewire('../CookieManager');
+    let jwt = CookieManager.__get__('createJWT')('randomuser');
     let [encodedHeader, encodedPayload, signature] = jwt.split('.');
-    let verifyIntegrity = AuthManager.__get__('verifyIntegrity');
+    let verifyIntegrity = CookieManager.__get__('verifyIntegrity');
     describe('Verify Signature', () => {
        it('Should verify that signature is correct', done => {
            verifyIntegrity(encodedHeader, encodedPayload, signature).should.equal(true);

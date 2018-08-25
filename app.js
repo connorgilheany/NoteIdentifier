@@ -4,7 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const util = require('util');
-const AuthManager = require('./AuthManager');
+const CookieManager = require('./CookieManager');
 const app = express();
 
 
@@ -14,8 +14,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 
-app.use(AuthManager.addCookieIfNeeded);
-app.use(AuthManager.getUserIDfromCookie);
+app.use(CookieManager.addCookieIfNeeded);
+app.use(CookieManager.getUserIDfromCookie);
 
 registerRoute('AuthRequestHandler', '/auth');
 registerRoute('TestRoute', '/hello');
