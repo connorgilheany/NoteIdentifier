@@ -1,14 +1,14 @@
 const hmacSHA256 = require('crypto-js/hmac-sha256');
 const secretFile = require('./secrets/hash');
 const uuid = require('uuid/v4');
-const strings = require('strings');
+const strings = require('./strings');
 
 
 function addCookieIfNeeded(req, res, next) {
     if(!req.cookies[strings.cookie_name]) {
         req.app.locals.user = uuid();
         console.log(`Adding cookie for user: ${req.app.locals.user}`);
-        res.cookie('ni_auth', createJWT(req.app.locals.user));
+        res.cookie(strings.cookie_name, createJWT(req.app.locals.user));
     }
     next();
 }
@@ -53,7 +53,7 @@ function generateSignature(encodedHeader, encodedPayload) {
 }
 
 function hash(data) {
-    let secret = secretFile.hashSecret;
+    let secret = secretFile.JWTHashSecret;
     return hmacSHA256(data, secret);
 }
 
