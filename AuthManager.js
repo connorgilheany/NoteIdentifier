@@ -1,10 +1,11 @@
 const hmacSHA256 = require('crypto-js/hmac-sha256');
 const secretFile = require('./secrets/hash');
 const uuid = require('uuid/v4');
+const strings = require('strings');
 
 
 function addCookieIfNeeded(req, res, next) {
-    if(!req.cookies.ni_auth) {
+    if(!req.cookies[strings.cookie_name]) {
         req.app.locals.user = uuid();
         console.log(`Adding cookie for user: ${req.app.locals.user}`);
         res.cookie('ni_auth', createJWT(req.app.locals.user));
@@ -13,8 +14,8 @@ function addCookieIfNeeded(req, res, next) {
 }
 
 function getUserIDfromCookie(req, res, next) {
-    if(req.cookies.ni_auth) {
-        let payload = decodeJWT(req.cookies.ni_auth);
+    if(req.cookies[strings.cookie_name]) {
+        let payload = decodeJWT(req.cookies[strings.cookie_name]);
         req.app.locals.user = payload.userID;
     }
     next();
