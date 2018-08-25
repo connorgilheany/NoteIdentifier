@@ -12,7 +12,7 @@ This repository hosts the server for NoteIdentifier. It's built with Node and Ex
 
 ### Authentication
 
-When an unauthenticated user visits, I assign them an ID and store it in a cookie. This cookie is a [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519). JWTs allow you to store signed information on the client side so that you can trust it in the future. By letting the client hold onto their user ID, I don't have to worry about maintaining any state on the server side. I can also trust (but verify) the JWT that the client passes me because it's signed, which makes users unable to fake their ID. These unauthenticated users can register at any point, at which time the ID they're currently assigned becomes their permanent ID. There are two main benefits to this:
+When an unauthenticated user visits, I assign them an ID and store it in a cookie. This cookie is a [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519). JWTs allow you to store signed information on the client side. By letting the client hold onto their user ID, I don't have to worry about maintaining any state on the server side. I can also trust (but verify) the JWT that the client passes me because it's signed, which makes users unable to fake their ID. These unauthenticated users can register at any point, at which time the ID they're currently assigned becomes their permanent ID. There are two main benefits to this:
 
   * A seamless user registration experience, where all actions completed prior to registration are remembered and tracked as if the user had been registered the whole time. 
   * All users can be treated the exact same, as they all have a user ID inside the same type of cookie.
