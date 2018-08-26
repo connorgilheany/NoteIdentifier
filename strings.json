@@ -1,6 +1,7 @@
 {
   "cookie_name": "ni_auth",
   "database": {
-    "tableName": "logins"
+    "loginTableName": "logins",
+    "optionsTableName": "options"
   }
 }

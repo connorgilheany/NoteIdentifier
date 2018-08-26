@@ -4,7 +4,7 @@ let rewire = require('rewire');
 let should = chai.should();
 
 describe('Database', () => {
-    let DatabaseManager = require('../DatabaseManager');
+    let DatabaseManager = require('../Managers/LoginDatabaseManager');
     describe('Get hash and salt for test user', () => {
         it('Should have a hash and salt in the response', done => {
             DatabaseManager.getUserInfoFromDatabase('ConnorTEST2').then(response => {

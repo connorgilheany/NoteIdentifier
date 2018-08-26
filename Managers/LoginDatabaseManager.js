@@ -1,11 +1,11 @@
 const AWS = require('aws-sdk');
-const awsConfig = require('./secrets/AWSConfig');
-const strings = require('./strings');
+const awsConfig = require('../secrets/AWSConfig');
+const strings = require('../strings');
 
 AWS.config.update(awsConfig);
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
-const table = strings.database.tableName;
+const table = strings.database.loginTableName;
 
 
 async function getUserInfoFromDatabase(username) {

@@ -4,8 +4,8 @@ const csprng = require('csprng');
 
 const RouteManager = require('./RouteManager');
 const Service = require('./Service');
-const CookieManager = require('../CookieManager');
-const DatabaseManager = require('../DatabaseManager');
+const CookieManager = require('../Managers/CookieManager');
+const DatabaseManager = require('../Managers/LoginDatabaseManager');
 
 const strings = require('../strings');
 const secrets = require('../secrets/hash');

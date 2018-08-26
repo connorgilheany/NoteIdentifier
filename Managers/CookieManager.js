@@ -1,7 +1,7 @@
 const hmacSHA256 = require('crypto-js/hmac-sha256');
-const secretFile = require('./secrets/hash');
+const secretFile = require('../secrets/hash');
 const uuid = require('uuid/v4');
-const strings = require('./strings');
+const strings = require('../strings');
 
 
 function addCookieIfNeeded(req, res, next) {
