@@ -6,14 +6,15 @@ AWS.config.update(awsConfig);
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const table = strings.database.optionsTableName;
+const defaultOptions = strings.defaultOptions;
 
 
-function getUserOptionsFromDatabase(username) {
+function getUserOptionsFromDatabase(userID) {
     return new Promise((resolve, reject) => {
         const params = {
             TableName: table,
             Key: {
-                username: username
+                userID: userID
             }
         };
         documentClient.get(params, async (err, data) => {
@@ -23,23 +24,25 @@ function getUserOptionsFromDatabase(username) {
             } else {
                 if(data.Item) {
                     console.log("Found item:", JSON.stringify(data, null, 2));
-                    return resolve(data);
+                    return resolve(data.Item.info.options);
                 }
                 //User doesn't have any saved options, so let's save their default options
-                let savedOptions = await saveUserOptionsToDatabase(username, defaultOptions);
+                let savedOptions = await saveUserOptionsToDatabase(userID, defaultOptions);
                 return resolve(savedOptions);
             }
         });
     });
 }
 
-function saveUserOptionsToDatabase(username, options) {
+function saveUserOptionsToDatabase(userID, options) {
     return new Promise((resolve, reject) => {
         const params = {
             TableName: table,
             Item: {
-                username: username,
-                options: options
+                userID: userID,
+                info: {
+                    options: options
+                }
             }
         };
         documentClient.put(params, (err, data) => {
@@ -48,21 +51,21 @@ function saveUserOptionsToDatabase(username, options) {
                 return reject(err);
             } else {
                 console.log("Saved item:", JSON.stringify(data, null, 2));
-                return resolve(data);
+                return resolve(options);
             }
         });
     });
 }
 
-function updateUserOptionsToDatabase(username, options) {
+function updateUserOptionsToDatabase(userID, options) {
     return new Promise((resolve, reject) => {
         const params = {
             TableName: table,
             Key: {
-                username: username
+                userID: userID
             },
-            UpdateExpression: "set options = :o",
-            ExpressionAttributeVales: {
+            UpdateExpression: "set info.options=:o",
+            ExpressionAttributeValues: {
                 ":o": options
             },
             ReturnValues:"UPDATED_NEW"
@@ -73,7 +76,7 @@ function updateUserOptionsToDatabase(username, options) {
                 return reject(err);
             } else {
                 console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
-                return resolve(data);
+                return resolve(data.Attributes.info.options);
             }
         });
     });

@@ -17,6 +17,7 @@ app.use(cookieParser());
 app.use(CookieManager.addCookieIfNeeded);
 app.use(CookieManager.getUserIDfromCookie);
 
+registerRoute('OptionsRequestHandler', '/options');
 registerRoute('AuthRequestHandler', '/auth');
 registerRoute('TestRoute', '/hello');
 registerRoute('NoteRequestHandler', '/note');

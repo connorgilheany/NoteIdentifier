@@ -3,5 +3,10 @@
   "database": {
     "loginTableName": "logins",
     "optionsTableName": "options"
+  },
+  "defaultOptions": {
+    "notes": [
+      "E", "D", "A"
+    ]
   }
 }
