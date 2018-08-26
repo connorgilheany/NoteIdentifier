@@ -103,5 +103,5 @@ function saltAndHashPassword(salt, password) {
 }
 
 function generateSalt() {
-    return csprng(1024, 36);
+    return csprng(256, 36);
 }
