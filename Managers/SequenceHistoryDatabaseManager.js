@@ -22,7 +22,7 @@ function getSequenceNotes(sequenceID) {
                 return reject(err);
             } else {
                 if(data.Item) {
-                    console.log("Found item:", JSON.stringify(data, null, 2));
+                    // console.log("Found item:", JSON.stringify(data, null, 2));
                     return resolve(data.Item.info);
                 }
             }
@@ -47,7 +47,7 @@ function saveSequenceToDatabase(sequenceID, notes, userID) {
                 console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
                 return reject(err);
             } else {
-                console.log("Saved item:", JSON.stringify(data, null, 2));
+                // console.log("Saved item:", JSON.stringify(data, null, 2));
                 return resolve(params.Item);
             }
         });
@@ -55,26 +55,28 @@ function saveSequenceToDatabase(sequenceID, notes, userID) {
 }
 
 function removeSequenceFromDatabase(sequenceID) {
-    return new Promise((resolve, reject) => {
+    //This function should not ever be waited upon, as it's success/failure is not important
+   // return new Promise((resolve, reject) => {
         const params = {
             TableName: table,
             Key: {
                 sequenceID: sequenceID
             }
         };
-        documentClient.put(params, (err, data) => {
+        documentClient.delete(params, (err, data) => {
             if (err) {
-                console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
-                return reject(err);
+                console.error("Unable to remove item. Error JSON:", JSON.stringify(err, null, 2));
+                //return reject(err);
             } else {
-                console.log("Saved item:", JSON.stringify(data, null, 2));
-                return resolve(data);
+                console.log("Removed item:", JSON.stringify(data, null, 2));
+               // return resolve(data);
             }
         });
-    });
+   // });
 }
 
 module.exports = {
     getSequenceNotes,
-    saveSequenceToDatabase
+    saveSequenceToDatabase,
+    removeSequenceFromDatabase
 };

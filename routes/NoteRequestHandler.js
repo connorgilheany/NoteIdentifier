@@ -3,7 +3,7 @@ const Service = require('./Service');
 const uuid = require('uuid/v4');
 const OptionsDatabaseManager = require('../Managers/OptionsDatabaseManager');
 const SequenceHistoryDatabaseManager = require('../Managers/SequenceHistoryDatabaseManager');
-// const UserResultsDatabaseManager = require('../Managers')
+const UserResultsDatabaseManager = require('../Managers/UserResultsDatabaseManager');
 const links = require('../secrets/linksToServe');
 
 class NoteRequestHandler extends RouteManager {
@@ -50,9 +50,14 @@ class NoteRequestHandler extends RouteManager {
             let sequenceInfo = await SequenceHistoryDatabaseManager.getSequenceNotes(sequenceID);
             this.validateSequenceGuess(notesGuessed, sequenceInfo.notes, req.app.locals.user, sequenceInfo.userID);
             let analysis = this.compareGuessesToReality(notesGuessed, sequenceInfo.notes);
+            console.log(analysis);
+            res.status(200).json(analysis.results);
+            res.locals.sent = true;
             //Send statistics to database,
             //remove sequence from database
-            res.status(200).json(analysis.results);
+            SequenceHistoryDatabaseManager.removeSequenceFromDatabase(sequenceID);
+            UserResultsDatabaseManager.sendResults(req.app.locals.user, analysis.wronglyGuessedNotes, analysis.correctlyGuessedNotes);
+
             //increment counters in userResults table
             //return which notes are correct/incorrect, along with the users total results for those notes
         } catch(err) {
@@ -61,7 +66,10 @@ class NoteRequestHandler extends RouteManager {
             } else if(err === 'wrong-user') {
                 res.status(401).json({err: "Attempted to solve a sequence that we did not serve you."});
             } else {
-                res.status(500).json(err);
+                console.error(err);
+                if(!res.locals.sent) { //make sure we're not double sending responses because of errors that occur after the 200
+                    res.status(500).json(err);
+                }
             }
 
         }
@@ -70,6 +78,7 @@ class NoteRequestHandler extends RouteManager {
         let pairs = guessed.map((guessed, index) => [guessed, real[index]]);
         let results = [];
         let wronglyGuessedNotes = {};
+        let correctlyGuessedNotes = {};
         pairs.forEach(pair => {
             let isCorrect = pair[0] === pair[1];
             results.push({
@@ -77,12 +86,13 @@ class NoteRequestHandler extends RouteManager {
                 actual: pair[1],
                 isCorrect: isCorrect
             });
-            if(!isCorrect) {
-                wronglyGuessedNotes[pair[1]] = wronglyGuessedNotes[pair[1]] ? wronglyGuessedNotes[pair[1]] + 1 : 1;
-            }
+            let dictionaryToAppend = isCorrect ? correctlyGuessedNotes : wronglyGuessedNotes;
+            dictionaryToAppend[pair[1]] = dictionaryToAppend[pair[1]] ? dictionaryToAppend[pair[1]] + 1 : 1;
+
         });
         return {
             results: results,
+            correctlyGuessedNotes: correctlyGuessedNotes,
             wronglyGuessedNotes: wronglyGuessedNotes
         }
     }
@@ -119,8 +129,7 @@ class NoteRequestHandler extends RouteManager {
             throw 'no-user';
         }
         let options = await OptionsDatabaseManager.getUserOptionsFromDatabase(user);
-        let notesToPlay = Object.keys(options.notes).filter(x => options.notes[x]);
-        return notesToPlay;
+        return Object.keys(options.notes).filter(x => options.notes[x]);
     }
 
 }
