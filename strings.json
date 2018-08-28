@@ -5,8 +5,15 @@
     "optionsTableName": "options"
   },
   "defaultOptions": {
-    "notes": [
-      "E", "D", "A"
-    ]
+    "notes": {
+      "A": true,
+      "D": true,
+      "E": true,
+      "Am": false,
+      "Em": false,
+      "Dm": false,
+      "G": false,
+      "C": false
+    }
   }
 }
