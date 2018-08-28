@@ -2,6 +2,8 @@ const RouteManager = require('./RouteManager');
 const Service = require('./Service');
 const uuid = require('uuid/v4');
 const OptionsDatabaseManager = require('../Managers/OptionsDatabaseManager');
+const SequenceHistoryDatabaseManager = require('../Managers/SequenceHistoryDatabaseManager');
+// const UserResultsDatabaseManager = require('../Managers')
 const links = require('../secrets/linksToServe');
 
 class NoteRequestHandler extends RouteManager {
@@ -33,6 +35,7 @@ class NoteRequestHandler extends RouteManager {
                 notes: noteLinks
             };
             //store the sequence (id and notes, not links) in the sequenceHistory table
+            await SequenceHistoryDatabaseManager.saveSequenceToDatabase(id, notes, req.app.locals.user);
             res.status(200).json(response);
         } catch(err) {
             console.error(err);
@@ -40,14 +43,57 @@ class NoteRequestHandler extends RouteManager {
         }
     }
 
-    guess(req, res, next) {
-        //get note guesses from body
-        let notesGuessed = req.body.notes;
-        //check sequenceHistory table to see which notes are correct
-        
-        //increment counters in userResults table
-        //return which notes are correct/incorrect, along with the users total results for those notes
-        next();
+    async guess(req, res, next) {
+        try {
+            let notesGuessed = req.body.notes;
+            let sequenceID   = req.body.sequenceID;
+            let sequenceInfo = await SequenceHistoryDatabaseManager.getSequenceNotes(sequenceID);
+            this.validateSequenceGuess(notesGuessed, sequenceInfo.notes, req.app.locals.user, sequenceInfo.userID);
+            let analysis = this.compareGuessesToReality(notesGuessed, sequenceInfo.notes);
+            //Send statistics to database,
+            //remove sequence from database
+            res.status(200).json(analysis.results);
+            //increment counters in userResults table
+            //return which notes are correct/incorrect, along with the users total results for those notes
+        } catch(err) {
+            if(err === 'wrong-length') {
+                res.status(400).json({err: "Incorrect note guess length. The amount of notes you guessed was not equal to the amount of notes we sent."});
+            } else if(err === 'wrong-user') {
+                res.status(401).json({err: "Attempted to solve a sequence that we did not serve you."});
+            } else {
+                res.status(500).json(err);
+            }
+
+        }
+    }
+    compareGuessesToReality(guessed, real) {
+        let pairs = guessed.map((guessed, index) => [guessed, real[index]]);
+        let results = [];
+        let wronglyGuessedNotes = {};
+        pairs.forEach(pair => {
+            let isCorrect = pair[0] === pair[1];
+            results.push({
+                guessed: pair[0],
+                actual: pair[1],
+                isCorrect: isCorrect
+            });
+            if(!isCorrect) {
+                wronglyGuessedNotes[pair[1]] = wronglyGuessedNotes[pair[1]] ? wronglyGuessedNotes[pair[1]] + 1 : 1;
+            }
+        });
+        return {
+            results: results,
+            wronglyGuessedNotes: wronglyGuessedNotes
+        }
+    }
+
+    validateSequenceGuess(guessedNotes, realNotes, guessedUser, realUser) {
+        if(guessedNotes.length !== realNotes.length) {
+            throw 'wrong-length';
+        }
+        if(guessedUser !== realUser) {
+            throw 'wrong-user';
+        }
     }
 
     getNoteList(length, notesToChooseFrom) {

@@ -2,7 +2,9 @@
   "cookie_name": "ni_auth",
   "database": {
     "loginTableName": "logins",
-    "optionsTableName": "options"
+    "optionsTableName": "options",
+    "sequenceHistoryTableName": "sequenceHistory",
+    "userResultsTableName": "userResults"
   },
   "defaultOptions": {
     "notes": {
