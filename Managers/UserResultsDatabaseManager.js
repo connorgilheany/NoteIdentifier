@@ -13,7 +13,7 @@ async function sendResults(userID, wrong, right) {
         let builtUpdateExpression = buildUpdateExpression(wrong, right);
         const params = {
             TableName: table,
-            Key:{
+            Key: {
                 userID: userID
             },
             UpdateExpression: builtUpdateExpression.UpdateExpression,
@@ -56,6 +56,7 @@ function buildUpdateExpression(wrong, right) {
 async function addUserToDBIfNecessary(userID) {
     let isInDB = await checkIfUserIsInDB(userID);
     if(isInDB) {
+        console.log('User was found in DB');
         return;
     }
     await addUserToDB(userID);
@@ -70,10 +71,12 @@ function checkIfUserIsInDB(userID) {
         };
 
         documentClient.get(params, (err, data) => {
-            if(err) {
+            if(err || !data.Item) {
                 //dont need to add user
-                return resolve(false); //if this isn't here and we reach this point, this function call will block the above function
+                console.log('Error trying to get user from DB');
+                return resolve(false);
             } else {
+                console.log(`User found in DB: ${JSON.stringify(data)}`);
                 return resolve(true);
             }
         });
@@ -82,6 +85,7 @@ function checkIfUserIsInDB(userID) {
 
 function addUserToDB(userID) {
     return new Promise((resolve, reject) => {
+        console.log('adding user to DB');
         const params2 = {
             TableName: table,
             Item: {
