@@ -38,13 +38,13 @@ function buildUpdateExpression(wrong, right) {
     let UpdateExpression = "SET ";
     let ExpressionAttributeValues = {":zero": 0};
     //The following is not very DRY, so I'll revisit it ^(TM)
-    for(note in wrong) {
-        UpdateExpression = `${UpdateExpression}info.incorrect.${note} = if_not_exists(info.incorrect.${note}, :zero) + :wrong${note}, `;
+    for(let note in wrong) {
+        UpdateExpression = `${UpdateExpression}info.${note}.incorrect = if_not_exists(info.${note}.incorrect, :zero) + :wrong${note}, `;
         ExpressionAttributeValues[`:wrong${note}`] = wrong[note];
 
     }
-    for(note in right) {
-        UpdateExpression = `${UpdateExpression}info.correct.${note} = if_not_exists(info.correct.${note}, :zero) + :right${note}, `;
+    for(let note in right) {
+        UpdateExpression = `${UpdateExpression}info.${note}.correct = if_not_exists(info.${note}.correct, :zero) + :right${note}, `;
         ExpressionAttributeValues[`:right${note}`] = right[note];
     }
     return {
@@ -86,14 +86,12 @@ function checkIfUserIsInDB(userID) {
 function addUserToDB(userID) {
     return new Promise((resolve, reject) => {
         console.log('adding user to DB');
+        let info = getDefaultDatabaseObject();
         const params2 = {
             TableName: table,
             Item: {
                 userID: userID,
-                info: {
-                    correct: {},
-                    incorrect: {}
-                }
+                info
             }
         };
         documentClient.put(params2, (err, data) => {
@@ -106,6 +104,18 @@ function addUserToDB(userID) {
             }
         });
     });
+}
+
+function getDefaultDatabaseObject() {
+    let notes = Object.keys(strings.defaultOptions.notes);
+    let object = {};
+    console.log(`Notes: ${notes}`);
+    notes.map(x => object[x] = {
+        incorrect: 0,
+        correct: 0
+    });
+    console.log(JSON.stringify(object));
+    return object;
 }
 
 module.exports = {
