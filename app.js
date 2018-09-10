@@ -13,9 +13,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+app.use('/', (req, res, next) => {
+    //console.log(req);
+    console.log('Received pre-flight OPTIONS request.');
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 app.use(CookieManager.addCookieIfNeeded);
 app.use(CookieManager.getUserIDfromCookie);
+
 
 registerRoute('OptionsRequestHandler', '/options');
 registerRoute('AuthRequestHandler', '/auth');
