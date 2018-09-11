@@ -14,11 +14,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', (req, res, next) => {
-    //console.log(req);
     res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
     res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    next();
+    if(req.method === 'OPTIONS') {
+        res.status(204).send();
+    } else {
+        next();
+    }
 });
 
 app.use(CookieManager.addCookieIfNeeded);
